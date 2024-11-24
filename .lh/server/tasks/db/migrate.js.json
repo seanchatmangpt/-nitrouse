@@ -1,0 +1,94 @@
+{
+    "sourceFile": "server/tasks/db/migrate.js",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 19,
+            "patches": [
+                {
+                    "date": 1732142482037,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                },
+                {
+                    "date": 1732142518627,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -13,4 +13,6 @@\n         console.log(`Seeding database for environment: ${event.payload.environment}`);\n         return \"Database seeded successfully\";\n     },\n });\n+\n+runTask(\"db:migrate\", { payload: { environment: \"production\" } });\n\\ No newline at end of file\n"
+                },
+                {
+                    "date": 1732142605072,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -0,0 +1,18 @@\n+import { z } from \"zod\";\n+\n+const seedDatabaseJob = defineJob({\n+    meta: {\n+        name: \"seedDatabase\",\n+        description: \"Seed the database with initial data\",\n+        schema: z.object({\n+            environment: z.string().default(process.env.NODE_ENV || \"development\"),\n+        }),\n+    },\n+    middlewares: [loggingMiddleware],\n+    run(event) {\n+        console.log(`Seeding database for environment: ${event.payload.environment}`);\n+        return \"Database seeded successfully\";\n+    },\n+});\n+\n+runTask(\"db:migrate\", { payload: { environment: \"production\" } });\n\\ No newline at end of file\n"
+                },
+                {
+                    "date": 1732142619802,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -7,30 +7,12 @@\n         schema: z.object({\n             environment: z.string().default(process.env.NODE_ENV || \"development\"),\n         }),\n     },\n-    middlewares: [loggingMiddleware],\n+    // middlewares: [loggingMiddleware],\n     run(event) {\n         console.log(`Seeding database for environment: ${event.payload.environment}`);\n         return \"Database seeded successfully\";\n     },\n });\n \n-runTask(\"db:migrate\", { payload: { environment: \"production\" } });\n-import { z } from \"zod\";\n-\n-const seedDatabaseJob = defineJob({\n-    meta: {\n-        name: \"seedDatabase\",\n-        description: \"Seed the database with initial data\",\n-        schema: z.object({\n-            environment: z.string().default(process.env.NODE_ENV || \"development\"),\n-        }),\n-    },\n-    middlewares: [loggingMiddleware],\n-    async run(event) {\n-        console.log(`Seeding database for environment: ${event.payload.environment}`);\n-        return \"Database seeded successfully\";\n-    },\n-});\n-\n runTask(\"db:migrate\", { payload: { environment: \"production\" } });\n\\ No newline at end of file\n"
+                },
+                {
+                    "date": 1732143081951,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,15 +1,14 @@\n import { z } from \"zod\";\n \n-const seedDatabaseJob = defineJob({\n+const seedDatabaseJob = defineTask({\n     meta: {\n         name: \"seedDatabase\",\n         description: \"Seed the database with initial data\",\n         schema: z.object({\n             environment: z.string().default(process.env.NODE_ENV || \"development\"),\n         }),\n     },\n-    // middlewares: [loggingMiddleware],\n     run(event) {\n         console.log(`Seeding database for environment: ${event.payload.environment}`);\n         return \"Database seeded successfully\";\n     },\n"
+                },
+                {
+                    "date": 1732143102371,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -7,11 +7,11 @@\n         schema: z.object({\n             environment: z.string().default(process.env.NODE_ENV || \"development\"),\n         }),\n     },\n-    run(event) {\n-        console.log(`Seeding database for environment: ${event.payload.environment}`);\n-        return \"Database seeded successfully\";\n+    run: async (event) => {\n+        console.log(`Seeding database in ${event.payload.environment} environment...`);\n+        // Seed the database here\n     },\n });\n \n runTask(\"db:migrate\", { payload: { environment: \"production\" } });\n\\ No newline at end of file\n"
+                },
+                {
+                    "date": 1732143115697,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -7,9 +7,9 @@\n         schema: z.object({\n             environment: z.string().default(process.env.NODE_ENV || \"development\"),\n         }),\n     },\n-    run: async (event) => {\n+    run: (event) => {\n         console.log(`Seeding database in ${event.payload.environment} environment...`);\n         // Seed the database here\n     },\n });\n"
+                },
+                {
+                    "date": 1732143141941,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,17 +1,10 @@\n-import { z } from \"zod\";\n-\n-const seedDatabaseJob = defineTask({\n+export default defineTask({\n     meta: {\n-        name: \"seedDatabase\",\n-        description: \"Seed the database with initial data\",\n-        schema: z.object({\n-            environment: z.string().default(process.env.NODE_ENV || \"development\"),\n-        }),\n+        name: \"echo:payload\",\n+        description: \"Returns the provided payload\",\n     },\n-    run: (event) => {\n-        console.log(`Seeding database in ${event.payload.environment} environment...`);\n-        // Seed the database here\n+    run({ payload, context }) {\n\\ No newline at end of file\n+        console.log(\"Running echo task...\");\n+        return { result: payload };\n     },\n });\n-\n-runTask(\"db:migrate\", { payload: { environment: \"production\" } });\n"
+                },
+                {
+                    "date": 1732143183657,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -6,5 +6,8 @@\n     run({ payload, context }) {\n         console.log(\"Running echo task...\");\n         return { result: payload };\n     },\n-});\n\\ No newline at end of file\n+});\n+\n+console.log(\"Running echo task...\");\n+runTask(\"echo:payload\")\n\\ No newline at end of file\n"
+                },
+                {
+                    "date": 1732143211692,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,4 +1,6 @@\n+import { set } from \"zod\";\n+\n export default defineTask({\n     meta: {\n         name: \"echo:payload\",\n         description: \"Returns the provided payload\",\n@@ -9,5 +11,7 @@\n     },\n });\n \n console.log(\"Running echo task...\");\n-runTask(\"echo:payload\")\n\\ No newline at end of file\n+setTimeout(() => {\n+    runTask(\"echo:payload\")\n+}, 1);\n"
+                },
+                {
+                    "date": 1732143221587,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -9,9 +9,4 @@\n         console.log(\"Running echo task...\");\n         return { result: payload };\n     },\n });\n-\n-console.log(\"Running echo task...\");\n-setTimeout(() => {\n-    runTask(\"echo:payload\")\n-}, 1);\n"
+                },
+                {
+                    "date": 1732143233304,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,5 +1,4 @@\n-import { set } from \"zod\";\n \n export default defineTask({\n     meta: {\n         name: \"echo:payload\",\n"
+                },
+                {
+                    "date": 1732143290835,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -0,0 +1,34 @@\n+import { z } from \"zod\";\n+\n+export default defineJob({\n+    meta: {\n+        name: \"seedDatabase\",\n+        description: \"Seed the database with initial data\",\n+        schema: z.object({\n+            environment: z.string().default(process.env.NODE_ENV || \"development\"), // Default to NODE_ENV or \"development\"\n+        }),\n+    },\n+    async beforeRun(event) {\n+        console.log(`[Before] Starting job: ${event.meta.name}`);\n+    },\n+    async run(event) {\n+        console.log(\n+            `Seeding database for environment: ${event.payload.environment}`\n+        );\n+        print(event);\n+        return \"Database seeded successfully\";\n+    },\n+    async afterRun(event, result) {\n+        console.log(\n+            `[After] Job ${event.meta.name} completed with result: ${result}`\n+        );\n+    },\n+    async onError(event, error) {\n+        console.error(`[Error] Job ${event.meta.name} failed:`, error.message);\n+    },\n+    async onComplete(event) {\n+        console.log(`[Complete] Job lifecycle finished: ${event.meta.name}`);\n+    },\n+});\n+\n+runTask(\"db:migrate\", { payload: { environment: \"production\" } });\n"
+                },
+                {
+                    "date": 1732143412207,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -30,5 +30,7 @@\n         console.log(`[Complete] Job lifecycle finished: ${event.meta.name}`);\n     },\n });\n \n+print(loggingMiddleware)\n+\n runTask(\"db:migrate\", { payload: { environment: \"production\" } });\n"
+                },
+                {
+                    "date": 1732143428860,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -28,20 +28,9 @@\n     },\n     async onComplete(event) {\n         console.log(`[Complete] Job lifecycle finished: ${event.meta.name}`);\n     },\n+    middlewares: [loggingMiddleware],\n });\n \n-print(loggingMiddleware)\n \n runTask(\"db:migrate\", { payload: { environment: \"production\" } });\n-\n-export default defineTask({\n-    meta: {\n-        name: \"echo:payload\",\n-        description: \"Returns the provided payload\",\n-    },\n-    run({ payload, context }) {\n-        console.log(\"Running echo task...\");\n-        return { result: payload };\n-    },\n-});\n"
+                },
+                {
+                    "date": 1732144125022,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -7,29 +7,12 @@\n         schema: z.object({\n             environment: z.string().default(process.env.NODE_ENV || \"development\"), // Default to NODE_ENV or \"development\"\n         }),\n     },\n-    async beforeRun(event) {\n-        console.log(`[Before] Starting job: ${event.meta.name}`);\n-    },\n     async run(event) {\n-        console.log(\n-            `Seeding database for environment: ${event.payload.environment}`\n-        );\n-        print(event);\n+        console.log(`Seeding database for environment: ${event.payload.environment}`);\n         return \"Database seeded successfully\";\n     },\n-    async afterRun(event, result) {\n-        console.log(\n-            `[After] Job ${event.meta.name} completed with result: ${result}`\n-        );\n-    },\n-    async onError(event, error) {\n-        console.error(`[Error] Job ${event.meta.name} failed:`, error.message);\n-    },\n-    async onComplete(event) {\n-        console.log(`[Complete] Job lifecycle finished: ${event.meta.name}`);\n-    },\n     middlewares: [loggingMiddleware],\n });\n \n \n"
+                },
+                {
+                    "date": 1732144135574,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -8,9 +8,8 @@\n             environment: z.string().default(process.env.NODE_ENV || \"development\"), // Default to NODE_ENV or \"development\"\n         }),\n     },\n     async run(event) {\n-        console.log(`Seeding database for environment: ${event.payload.environment}`);\n         return \"Database seeded successfully\";\n     },\n     middlewares: [loggingMiddleware],\n });\n"
+                },
+                {
+                    "date": 1732145696372,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,5 +1,6 @@\n import { z } from \"zod\";\n+import { resultModifierMiddleware } from \"~/server/utils/result-mod-middleware\";\n \n export default defineJob({\n     meta: {\n         name: \"seedDatabase\",\n@@ -10,9 +11,9 @@\n     },\n     async run(event) {\n         return \"Database seeded successfully\";\n     },\n-    middlewares: [loggingMiddleware],\n+    middlewares: [loggingMiddleware, resultModifierMiddleware],\n });\n \n \n runTask(\"db:migrate\", { payload: { environment: \"production\" } });\n"
+                },
+                {
+                    "date": 1732214271258,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -15,5 +15,5 @@\n     middlewares: [loggingMiddleware, resultModifierMiddleware],\n });\n \n \n-runTask(\"db:migrate\", { payload: { environment: \"production\" } });\n+// runTask(\"db:migrate\", { payload: { environment: \"production\" } });\n"
+                },
+                {
+                    "date": 1732340651785,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,6 +1,5 @@\n import { z } from \"zod\";\n-import { resultModifierMiddleware } from \"~/server/utils/result-mod-middleware\";\n \n export default defineJob({\n     meta: {\n         name: \"seedDatabase\",\n"
+                }
+            ],
+            "date": 1732142482037,
+            "name": "Commit-0",
+            "content": "import { z } from \"zod\";\n\nconst seedDatabaseJob = defineJob({\n    meta: {\n        name: \"seedDatabase\",\n        description: \"Seed the database with initial data\",\n        schema: z.object({\n            environment: z.string().default(process.env.NODE_ENV || \"development\"),\n        }),\n    },\n    middlewares: [loggingMiddleware],\n    async run(event) {\n        console.log(`Seeding database for environment: ${event.payload.environment}`);\n        return \"Database seeded successfully\";\n    },\n});\n"
+        }
+    ]
+}

@@ -1,0 +1,38 @@
+{
+    "sourceFile": "server/tasks/openai/flow.js",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 5,
+            "patches": [
+                {
+                    "date": 1732217789690,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                },
+                {
+                    "date": 1732217834146,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,3 +1,3 @@\n import migrate from \"../db/migrate\";\n \n-migrate();\n\\ No newline at end of file\n+migrate.run({ payload: { environment: \"production\" } });\n\\ No newline at end of file\n"
+                },
+                {
+                    "date": 1732217842791,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,3 +1,3 @@\n import migrate from \"../db/migrate\";\n \n-migrate.run({ payload: { environment: \"production\" } });\n\\ No newline at end of file\n+migrate.run({ payload: { environment: \"production\" } })\n\\ No newline at end of file\n"
+                },
+                {
+                    "date": 1732217915322,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,3 +1,3 @@\n import migrate from \"../db/migrate\";\n \n-migrate.run({ payload: { environment: \"production\" } })\n\\ No newline at end of file\n+print(migrate)\n\\ No newline at end of file\n"
+                },
+                {
+                    "date": 1732217978769,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,3 +0,0 @@\n-import migrate from \"../db/migrate\";\n-\n-print(migrate)\n\\ No newline at end of file\n"
+                },
+                {
+                    "date": 1732218003672,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -0,0 +1,19 @@\n+import { z } from \"zod\";\n+\n+export default defineWorkflow({\n+  meta: {\n+    name: \"helloWorld\",\n+    description: \"Hello World with initial data\",\n+    schema: z.object({\n+      environment: z.string().default(process.env.NODE_ENV || \"development\"), // Default to NODE_ENV or \"development\"\n+    }),\n+    jobs: [\"db:migrate\", \"db:migrate\", \"db:migrate\"],\n+  },\n+  async run(event) {\n+    return \"World seeded successfully\";\n+  },\n+  middlewares: [workflowLoggingMiddleware],\n+});\n+\n+\n+// runTask(\"db:flow\", { payload: { environment: \"production\" } });\n"
+                }
+            ],
+            "date": 1732217789690,
+            "name": "Commit-0",
+            "content": "import migrate from \"../db/migrate\";\n\nmigrate();"
+        }
+    ]
+}

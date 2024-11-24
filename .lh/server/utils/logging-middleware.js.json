@@ -1,0 +1,18 @@
+{
+    "sourceFile": "server/utils/logging-middleware.js",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 0,
+            "patches": [
+                {
+                    "date": 1732144036150,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                }
+            ],
+            "date": 1732144036150,
+            "name": "Commit-0",
+            "content": "export const loggingMiddleware: JobMiddleware = {\n  beforeRun: (event: JobEvent) => {\n    console.log(`[Log] Starting job: ${event.meta.name}`);\n  },\n  afterRun: (event: JobEvent, result: unknown) => {\n    console.log(`[Log] Job completed: ${event.meta.name}, Result: ${result}`);\n  },\n  onError: (event: JobEvent, error: Error) => {\n    console.error(\n      `[Log] Job failed: ${event.meta.name}, Error: ${error.message}`\n    );\n  },\n};"
+        }
+    ]
+}

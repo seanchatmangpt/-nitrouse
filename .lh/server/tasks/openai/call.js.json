@@ -1,0 +1,50 @@
+{
+    "sourceFile": "server/tasks/openai/call.js",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 8,
+            "patches": [
+                {
+                    "date": 1732216051507,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                },
+                {
+                    "date": 1732216092585,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -17,9 +17,9 @@\n \n     try {\n       // Make an OpenAI API call\n       const response = await openai.createCompletion({\n-        model: \"text-davinci-003\",\n+        model: \"gpt-4o-mini\",\n         prompt: payload.prompt || \"Say hello!\",\n         max_tokens: 100,\n       });\n \n"
+                },
+                {
+                    "date": 1732216101498,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -18,9 +18,9 @@\n     try {\n       // Make an OpenAI API call\n       const response = await openai.createCompletion({\n         model: \"gpt-4o-mini\",\n-        prompt: payload.prompt || \"Say hello!\",\n+        prompt: payload.prompt,\n         max_tokens: 100,\n       });\n \n       // Log the result\n"
+                },
+                {
+                    "date": 1732216348411,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,36 +0,0 @@\n-import { Configuration, OpenAIApi } from \"openai\";\n-\n-export default defineTask({\n-  meta: {\n-    name: \"openai:call\",\n-    description: \"Call OpenAI API and log the response\",\n-  },\n-  async run({ payload, context }) {\n-    const config = useRuntimeConfig();\n-\n-    // Initialize OpenAI client\n-    const openai = new OpenAIApi(\n-      new Configuration({\n-        apiKey: config.openaiApiKey,\n-      })\n-    );\n-\n-    try {\n-      // Make an OpenAI API call\n-      const response = await openai.createCompletion({\n-        model: \"gpt-4o-mini\",\n-        prompt: payload.prompt,\n-        max_tokens: 100,\n-      });\n-\n-      // Log the result\n-      const result = response.data.choices[0]?.text?.trim();\n-      console.log(\"OpenAI Response:\", result);\n-\n-      return { result };\n-    } catch (error) {\n-      console.error(\"Error calling OpenAI API:\", error);\n-      throw new Error(\"OpenAI API call failed\");\n-    }\n-  },\n-});\n\\ No newline at end of file\n"
+                },
+                {
+                    "date": 1732216408898,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -0,0 +1,29 @@\n+import { Configuration, OpenAIApi } from \"openai\";\n+import { defineJob } from \"some-job-library\";\n+\n+const configuration = new Configuration({\n+  apiKey: process.env.OPENAI_API_KEY,\n+});\n+\n+const openai = new OpenAIApi(configuration);\n+\n+export default async function chatCompletion(prompt) {\n+  try {\n+    const response = await openai.createChatCompletion({\n+      model: \"gpt-3.5-turbo\",\n+      messages: [{ role: \"user\", content: prompt }],\n+    });\n+\n+    return response.data.choices[0].message.content;\n+  } catch (error) {\n+    console.error(\"Error with OpenAI API:\", error);\n+    throw new Error(\"Failed to get chat completion from OpenAI.\");\n+  }\n+}\n+export const openaiCallJob = defineJob({\n+  name: \"openai:call\",\n+  handler: async ({ payload }) => {\n+    const { prompt } = payload;\n+    return await chatCompletion(prompt);\n+  },\n+});\n\\ No newline at end of file\n"
+                },
+                {
+                    "date": 1732216414312,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -17,5 +17,8 @@\n   } catch (error) {\n     console.error(\"Error with OpenAI API:\", error);\n     throw new Error(\"Failed to get chat completion from OpenAI.\");\n   }\n-}\n\\ No newline at end of file\n+}\n+export const openaiCallJob = defineJob({\n+  name: \"openai:call\",\n+  async handler({ payload })\n\\ No newline at end of file\n"
+                },
+                {
+                    "date": 1732216424195,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -17,8 +17,5 @@\n   } catch (error) {\n     console.error(\"Error with OpenAI API:\", error);\n     throw new Error(\"Failed to get chat completion from OpenAI.\");\n   }\n-}\n-export const openaiCallJob = defineJob({\n-  name: \"openai:call\",\n-  async handler({ payload })\n\\ No newline at end of file\n+}\n\\ No newline at end of file\n"
+                },
+                {
+                    "date": 1732216450028,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,21 +0,0 @@\n-import { Configuration, OpenAIApi } from \"openai\";\n-\n-const configuration = new Configuration({\n-  apiKey: process.env.OPENAI_API_KEY,\n-});\n-\n-const openai = new OpenAIApi(configuration);\n-\n-export default async function chatCompletion(prompt) {\n-  try {\n-    const response = await openai.createChatCompletion({\n-      model: \"gpt-3.5-turbo\",\n-      messages: [{ role: \"user\", content: prompt }],\n-    });\n-\n-    return response.data.choices[0].message.content;\n-  } catch (error) {\n-    console.error(\"Error with OpenAI API:\", error);\n-    throw new Error(\"Failed to get chat completion from OpenAI.\");\n-  }\n-}\n\\ No newline at end of file\n"
+                },
+                {
+                    "date": 1732216475994,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -0,0 +1,28 @@\n+import { z } from \"zod\";\n+import { OpenAIApi, Configuration } from \"openai\";\n+\n+const configuration = new Configuration({\n+  apiKey: process.env.OPENAI_API_KEY,\n+});\n+const openai = new OpenAIApi(configuration);\n+\n+export default defineJob({\n+  meta: {\n+    name: \"openaiChatCompletion\",\n+    description: \"Generate a chat completion using OpenAI\",\n+    schema: z.object({\n+      prompt: z.string(),\n+    }),\n+  },\n+  async run(event) {\n+    const { prompt } = event.payload;\n+    const response = await openai.createCompletion({\n+      model: \"text-davinci-003\",\n+      prompt,\n+      max_tokens: 150,\n+    });\n+\n+    return response.data.choices[0].text.trim();\n+  },\n+  middlewares: [loggingMiddleware],\n+});\n\\ No newline at end of file\n"
+                }
+            ],
+            "date": 1732216051507,
+            "name": "Commit-0",
+            "content": "import { Configuration, OpenAIApi } from \"openai\";\n\nexport default defineTask({\n  meta: {\n    name: \"openai:call\",\n    description: \"Call OpenAI API and log the response\",\n  },\n  async run({ payload, context }) {\n    const config = useRuntimeConfig();\n\n    // Initialize OpenAI client\n    const openai = new OpenAIApi(\n      new Configuration({\n        apiKey: config.openaiApiKey,\n      })\n    );\n\n    try {\n      // Make an OpenAI API call\n      const response = await openai.createCompletion({\n        model: \"text-davinci-003\",\n        prompt: payload.prompt || \"Say hello!\",\n        max_tokens: 100,\n      });\n\n      // Log the result\n      const result = response.data.choices[0]?.text?.trim();\n      console.log(\"OpenAI Response:\", result);\n\n      return { result };\n    } catch (error) {\n      console.error(\"Error calling OpenAI API:\", error);\n      throw new Error(\"OpenAI API call failed\");\n    }\n  },\n});\n"
+        }
+    ]
+}

@@ -1,0 +1,54 @@
+{
+    "sourceFile": "server/tasks/db/migrate.ts",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 9,
+            "patches": [
+                {
+                    "date": 1732133656284,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                },
+                {
+                    "date": 1732133777177,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,6 +1,5 @@\n import { z } from \"zod\";\n-import { defineJob } from \"~/utils/define-job\";\n \n export default defineJob({\n   meta: {\n     name: \"seedDatabase\",\n@@ -29,4 +28,6 @@\n   async onComplete(event) {\n     console.log(`[Complete] Job lifecycle finished: ${event.meta.name}`);\n   },\n });\n+\n+await runTask(\"db:migrate\", { environment: process.env.NODE_ENV });\n"
+                },
+                {
+                    "date": 1732133784110,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -29,5 +29,5 @@\n     console.log(`[Complete] Job lifecycle finished: ${event.meta.name}`);\n   },\n });\n \n-await runTask(\"db:migrate\", { environment: process.env.NODE_ENV });\n+runTask(\"db:migrate\", { environment: process.env.NODE_ENV });\n"
+                },
+                {
+                    "date": 1732133814347,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -29,5 +29,5 @@\n     console.log(`[Complete] Job lifecycle finished: ${event.meta.name}`);\n   },\n });\n \n-runTask(\"db:migrate\", { environment: process.env.NODE_ENV });\n+runTask(\"db:migrate\", { payload: { environment: process.env.NODE_ENV } });\n"
+                },
+                {
+                    "date": 1732133965083,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -4,9 +4,9 @@\n   meta: {\n     name: \"seedDatabase\",\n     description: \"Seed the database with initial data\",\n     schema: z.object({\n-      environment: z.string(),\n+      environment: z.string().default(process.env.NODE_ENV || \"development\"), // Default to NODE_ENV or \"development\"\n     }),\n   },\n   async beforeRun(event) {\n     console.log(`[Before] Starting job: ${event.meta.name}`);\n"
+                },
+                {
+                    "date": 1732133976092,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -29,5 +29,5 @@\n     console.log(`[Complete] Job lifecycle finished: ${event.meta.name}`);\n   },\n });\n \n-runTask(\"db:migrate\", { payload: { environment: process.env.NODE_ENV } });\n+runTask(\"db:migrate\", { payload: { environment: \"production\" } });\n"
+                },
+                {
+                    "date": 1732134203343,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -14,8 +14,9 @@\n   async run(event) {\n     console.log(\n       `Seeding database for environment: ${event.payload.environment}`\n     );\n+    usePrint(event);\n     return \"Database seeded successfully\";\n   },\n   async afterRun(event, result) {\n     console.log(\n"
+                },
+                {
+                    "date": 1732134425046,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,5 +1,6 @@\n import { z } from \"zod\";\n+import usePrint from \"~/server/utils/print\";\n \n export default defineJob({\n   meta: {\n     name: \"seedDatabase\",\n@@ -14,9 +15,10 @@\n   async run(event) {\n     console.log(\n       `Seeding database for environment: ${event.payload.environment}`\n     );\n-    usePrint(event);\n+    const print = usePrint();\n+    print(event);\n     return \"Database seeded successfully\";\n   },\n   async afterRun(event, result) {\n     console.log(\n"
+                },
+                {
+                    "date": 1732134475246,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -0,0 +1,35 @@\n+import { z } from \"zod\";\n+import usePrint from \"~/server/utils/print\";\n+\n+export default defineJob({\n+  meta: {\n+    name: \"seedDatabase\",\n+    description: \"Seed the database with initial data\",\n+    schema: z.object({\n+      environment: z.string().default(process.env.NODE_ENV || \"development\"), // Default to NODE_ENV or \"development\"\n+    }),\n+  },\n+  async beforeRun(event) {\n+    console.log(`[Before] Starting job: ${event.meta.name}`);\n+  },\n+  async run(event) {\n+    console.log(\n+      `Seeding database for environment: ${event.payload.environment}`\n+    );\n+    print(event);\n+    return \"Database seeded successfully\";\n+  },\n+  async afterRun(event, result) {\n+    console.log(\n+      `[After] Job ${event.meta.name} completed with result: ${result}`\n+    );\n+  },\n+  async onError(event, error) {\n+    console.error(`[Error] Job ${event.meta.name} failed:`, error.message);\n+  },\n+  async onComplete(event) {\n+    console.log(`[Complete] Job lifecycle finished: ${event.meta.name}`);\n+  },\n+});\n+\n+runTask(\"db:migrate\", { payload: { environment: \"production\" } });\n"
+                },
+                {
+                    "date": 1732142095999,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,71 +1,40 @@\n-import { z } from \"zod\";\n-import usePrint from \"~/server/utils/print\";\n+// import { z } from \"zod\";\n+// import usePrint from \"~/server/utils/print\";\n \n-export default defineJob({\n-  meta: {\n-    name: \"seedDatabase\",\n-    description: \"Seed the database with initial data\",\n-    schema: z.object({\n-      environment: z.string().default(process.env.NODE_ENV || \"development\"), // Default to NODE_ENV or \"development\"\n-    }),\n-  },\n-  async beforeRun(event) {\n-    console.log(`[Before] Starting job: ${event.meta.name}`);\n-  },\n-  async run(event) {\n-    console.log(\n-      `Seeding database for environment: ${event.payload.environment}`\n-    );\n-    print(event);\n-    return \"Database seeded successfully\";\n-  },\n-  async afterRun(event, result) {\n-    console.log(\n-      `[After] Job ${event.meta.name} completed with result: ${result}`\n-    );\n-  },\n-  async onError(event, error) {\n-    console.error(`[Error] Job ${event.meta.name} failed:`, error.message);\n-  },\n-  async onComplete(event) {\n-    console.log(`[Complete] Job lifecycle finished: ${event.meta.name}`);\n-  },\n-});\n+// import { createHooks } from 'hookable';\n \n-runTask(\"db:migrate\", { payload: { environment: \"production\" } });\n-import { z } from \"zod\";\n-import usePrint from \"~/server/utils/print\";\n+// const hooks = createHooks();\n \n-export default defineJob({\n-  meta: {\n-    name: \"seedDatabase\",\n-    description: \"Seed the database with initial data\",\n-    schema: z.object({\n-      environment: z.string().default(process.env.NODE_ENV || \"development\"), // Default to NODE_ENV or \"development\"\n-    }),\n-  },\n-  async beforeRun(event) {\n-    console.log(`[Before] Starting job: ${event.meta.name}`);\n-  },\n-  async run(event) {\n-    console.log(\n-      `Seeding database for environment: ${event.payload.environment}`\n-    );\n-    const print = usePrint();\n-    print(event);\n-    return \"Database seeded successfully\";\n-  },\n-  async afterRun(event, result) {\n-    console.log(\n-      `[After] Job ${event.meta.name} completed with result: ${result}`\n-    );\n-  },\n-  async onError(event, error) {\n-    console.error(`[Error] Job ${event.meta.name} failed:`, error.message);\n-  },\n-  async onComplete(event) {\n-    console.log(`[Complete] Job lifecycle finished: ${event.meta.name}`);\n-  },\n-});\n+// export default defineJob({\n+//   hooks,\n+//   meta: {\n+//     name: \"seedDatabase\",\n+//     description: \"Seed the database with initial data\",\n+//     schema: z.object({\n+//       environment: z.string().default(process.env.NODE_ENV || \"development\"), // Default to NODE_ENV or \"development\"\n+//     }),\n+//   },\n+//   async beforeRun(event) {\n+//     console.log(`[Before] Starting job: ${event.meta.name}`);\n+//   },\n+//   async run(event) {\n+//     console.log(\n+//       `Seeding database for environment: ${event.payload.environment}`\n+//     );\n+//     print(event);\n+//     return \"Database seeded successfully\";\n+//   },\n+//   async afterRun(event, result) {\n+//     console.log(\n+//       `[After] Job ${event.meta.name} completed with result: ${result}`\n+//     );\n+//   },\n+//   async onError(event, error) {\n+//     console.error(`[Error] Job ${event.meta.name} failed:`, error.message);\n+//   },\n+//   async onComplete(event) {\n+//     console.log(`[Complete] Job lifecycle finished: ${event.meta.name}`);\n+//   },\n+// });\n \n-runTask(\"db:migrate\", { payload: { environment: \"production\" } });\n+// runTask(\"db:migrate\", { payload: { environment: \"production\" } });\n"
+                }
+            ],
+            "date": 1732133656284,
+            "name": "Commit-0",
+            "content": "import { z } from \"zod\";\nimport { defineJob } from \"~/utils/define-job\";\n\nexport default defineJob({\n  meta: {\n    name: \"seedDatabase\",\n    description: \"Seed the database with initial data\",\n    schema: z.object({\n      environment: z.string(),\n    }),\n  },\n  async beforeRun(event) {\n    console.log(`[Before] Starting job: ${event.meta.name}`);\n  },\n  async run(event) {\n    console.log(\n      `Seeding database for environment: ${event.payload.environment}`\n    );\n    return \"Database seeded successfully\";\n  },\n  async afterRun(event, result) {\n    console.log(\n      `[After] Job ${event.meta.name} completed with result: ${result}`\n    );\n  },\n  async onError(event, error) {\n    console.error(`[Error] Job ${event.meta.name} failed:`, error.message);\n  },\n  async onComplete(event) {\n    console.log(`[Complete] Job lifecycle finished: ${event.meta.name}`);\n  },\n});\n"
+        }
+    ]
+}

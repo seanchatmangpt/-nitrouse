@@ -1,0 +1,18 @@
+{
+    "sourceFile": "tasks/db/migrate.ts",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 0,
+            "patches": [
+                {
+                    "date": 1732130237630,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                }
+            ],
+            "date": 1732130237630,
+            "name": "Commit-0",
+            "content": "export default defineTask({\n  meta: {\n    name: \"db:migrate\",\n    description: \"Run database migrations\",\n  },\n  run({ payload, context }) {\n    console.log(\"Running DB migration task...\");\n    return { result: \"Success\" };\n  },\n});\n"
+        }
+    ]
+}

@@ -1,0 +1,18 @@
+{
+    "sourceFile": "server/api/migrate.ts",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 0,
+            "patches": [
+                {
+                    "date": 1732130345015,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                }
+            ],
+            "date": 1732130345015,
+            "name": "Commit-0",
+            "content": "// api/migrate.ts\nexport default eventHandler(async (event) => {\n  // IMPORTANT: Authenticate user and validate payload!\n  const payload = { ...getQuery(event) };\n  const { result } = await runTask(\"db:migrate\", { payload });\n\n  return { result };\n});\n"
+        }
+    ]
+}

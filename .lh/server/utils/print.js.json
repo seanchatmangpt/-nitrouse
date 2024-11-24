@@ -1,0 +1,34 @@
+{
+    "sourceFile": "server/utils/print.js",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 4,
+            "patches": [
+                {
+                    "date": 1732134155415,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                },
+                {
+                    "date": 1732134280297,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,25 +1,22 @@\n+\n /**\n- * A custom hook that returns a function to print the provided arguments in a formatted JSON string.\n- *\n- * @returns {Function} A function that takes any number of arguments and logs them as a formatted JSON string.\n- *\n+ * Logs and returns a formatted JSON string of the provided arguments.\n+ * \n+ * @param {...*} rest - The arguments to be formatted and logged.\n+ * @returns {string|function} - If arguments are provided, returns the formatted JSON string.\n+ *                              If no arguments are provided, returns a function that accepts arguments,\n+ *                              formats them as JSON, logs, and returns the formatted string.\n+ * \n  * @example\n- * const print = usePrint();\n- * print({ key: 'value' }, [1, 2, 3]);\n- * // Output:\n- * // [\n- * //   {\n- * //     \"key\": \"value\"\n- * //   },\n- * //   [\n- * //     1,\n- * //     2,\n- * //     3\n- * //   ]\n- * // ]\n+ * // Direct usage\n+ * usePrint('Hello', 'World');\n+ * \n+ * // Usage as a returned function\n+ * const printFn = usePrint();\n+ * printFn('Hello', 'World');\n  */\n-export default function usePrint(...rest) {\n+export default function usePrint() {\n     if (rest.length > 0) {\n         const formatted = JSON.stringify(arguments, null, 2);\n         console.log(formatted);\n         return formatted;\n"
+                },
+                {
+                    "date": 1732134402557,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -15,13 +15,8 @@\n  * const printFn = usePrint();\n  * printFn('Hello', 'World');\n  */\n export default function usePrint() {\n-    if (rest.length > 0) {\n-        const formatted = JSON.stringify(arguments, null, 2);\n-        console.log(formatted);\n-        return formatted;\n-    }\n     return function (...rest) {\n         if (rest.length > 0) {\n             const formatted = JSON.stringify(arguments, null, 2);\n             console.log(formatted);\n"
+                },
+                {
+                    "date": 1732134450532,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -14,13 +14,11 @@\n  * // Usage as a returned function\n  * const printFn = usePrint();\n  * printFn('Hello', 'World');\n  */\n-export default function usePrint() {\n-    return function (...rest) {\n-        if (rest.length > 0) {\n-            const formatted = JSON.stringify(arguments, null, 2);\n-            console.log(formatted);\n-            return formatted;\n-        }\n-    };\n-}\n\\ No newline at end of file\n+export default function (...rest) {\n+    if (rest.length > 0) {\n+        const formatted = JSON.stringify(arguments, null, 2);\n+        console.log(formatted);\n+        return formatted;\n+    }\n+};\n"
+                },
+                {
+                    "date": 1732142462716,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,22 +1,11 @@\n-\n /**\n  * Logs and returns a formatted JSON string of the provided arguments.\n- * \n- * @param {...*} rest - The arguments to be formatted and logged.\n- * @returns {string|function} - If arguments are provided, returns the formatted JSON string.\n- *                              If no arguments are provided, returns a function that accepts arguments,\n- *                              formats them as JSON, logs, and returns the formatted string.\n- * \n- * @example\n- * // Direct usage\n- * usePrint('Hello', 'World');\n- * \n- * // Usage as a returned function\n- * const printFn = usePrint();\n- * printFn('Hello', 'World');\n+ *\n+ * @param {...*} rest - The arguments to be logged and formatted.\n+ * @returns {string|undefined} The formatted JSON string of the arguments, or undefined if no arguments are provided.\n  */\n-export default function (...rest) {\n+export function print(...rest) {\n     if (rest.length > 0) {\n         const formatted = JSON.stringify(arguments, null, 2);\n         console.log(formatted);\n         return formatted;\n"
+                }
+            ],
+            "date": 1732134155415,
+            "name": "Commit-0",
+            "content": "/**\n * A custom hook that returns a function to print the provided arguments in a formatted JSON string.\n *\n * @returns {Function} A function that takes any number of arguments and logs them as a formatted JSON string.\n *\n * @example\n * const print = usePrint();\n * print({ key: 'value' }, [1, 2, 3]);\n * // Output:\n * // [\n * //   {\n * //     \"key\": \"value\"\n * //   },\n * //   [\n * //     1,\n * //     2,\n * //     3\n * //   ]\n * // ]\n */\nexport default function usePrint(...rest) {\n    if (rest.length > 0) {\n        const formatted = JSON.stringify(arguments, null, 2);\n        console.log(formatted);\n        return formatted;\n    }\n    return function (...rest) {\n        if (rest.length > 0) {\n            const formatted = JSON.stringify(arguments, null, 2);\n            console.log(formatted);\n            return formatted;\n        }\n    };\n}"
+        }
+    ]
+}

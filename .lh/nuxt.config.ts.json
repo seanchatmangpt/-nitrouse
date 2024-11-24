@@ -1,0 +1,46 @@
+{
+    "sourceFile": "nuxt.config.ts",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 7,
+            "patches": [
+                {
+                    "date": 1732130207710,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                },
+                {
+                    "date": 1732130314403,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -5,6 +5,10 @@\n   nitro: {\n     experimental: {\n       tasks: true,\n     },\n+    scheduledTasks: {\n+      // Run `cms:update` task every minute\n+      \"* * * * *\": [\"cms:update\"],\n+    },\n   },\n });\n"
+                },
+                {
+                    "date": 1732130445383,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -7,8 +7,8 @@\n       tasks: true,\n     },\n     scheduledTasks: {\n       // Run `cms:update` task every minute\n-      \"* * * * *\": [\"cms:update\"],\n+      \"* * * * *\": [\"db:migrate\"],\n     },\n   },\n });\n"
+                },
+                {
+                    "date": 1732214594751,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -7,8 +7,8 @@\n       tasks: true,\n     },\n     scheduledTasks: {\n       // Run `cms:update` task every minute\n-      \"* * * * *\": [\"db:migrate\"],\n+      \"* * * * *\": [\"db:flow\"],\n     },\n   },\n });\n"
+                },
+                {
+                    "date": 1732216069646,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -10,5 +10,8 @@\n       // Run `cms:update` task every minute\n       \"* * * * *\": [\"db:flow\"],\n     },\n   },\n+  runtimeConfig: {\n+    openaiApiKey: process.env.OPENAI_API_KEY, // Use runtimeConfig for secure access\n+  },\n });\n"
+                },
+                {
+                    "date": 1732216823810,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -11,7 +11,8 @@\n       \"* * * * *\": [\"db:flow\"],\n     },\n   },\n   runtimeConfig: {\n-    openaiApiKey: process.env.OPENAI_API_KEY, // Use runtimeConfig for secure access\n+    NUXT_UI_PRO_LICENSE: process.env.NUXT_UI_PRO_LICENSE,\n+    GROQ_API_KEY: process.env.GROQ_API_KEY,\n   },\n });\n"
+                },
+                {
+                    "date": 1732218562507,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,5 +1,7 @@\n // https://nuxt.com/docs/api/configuration/nuxt-config\n+process.noDeprecation = true;\n+\n export default defineNuxtConfig({\n   compatibilityDate: \"2024-11-01\",\n   devtools: { enabled: true },\n   nitro: {\n"
+                },
+                {
+                    "date": 1732218576848,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,6 +1,5 @@\n // https://nuxt.com/docs/api/configuration/nuxt-config\n-process.noDeprecation = true;\n \n export default defineNuxtConfig({\n   compatibilityDate: \"2024-11-01\",\n   devtools: { enabled: true },\n"
+                }
+            ],
+            "date": 1732130207710,
+            "name": "Commit-0",
+            "content": "// https://nuxt.com/docs/api/configuration/nuxt-config\nexport default defineNuxtConfig({\n  compatibilityDate: \"2024-11-01\",\n  devtools: { enabled: true },\n  nitro: {\n    experimental: {\n      tasks: true,\n    },\n  },\n});\n"
+        }
+    ]
+}

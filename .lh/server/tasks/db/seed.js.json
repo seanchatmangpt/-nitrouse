@@ -1,0 +1,26 @@
+{
+    "sourceFile": "server/tasks/db/seed.js",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 2,
+            "patches": [
+                {
+                    "date": 1732142029917,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                },
+                {
+                    "date": 1732142140887,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,5 +1,6 @@\n import { z } from \"zod\";\n+import { loggingMiddleware } from \"~/server/utils/logging-middleware\";\n \n const seedDatabaseJob = defineJob({\n     meta: {\n         name: \"seedDatabase\",\n"
+                },
+                {
+                    "date": 1732142232261,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,6 +1,5 @@\n import { z } from \"zod\";\n-import { loggingMiddleware } from \"~/server/utils/logging-middleware\";\n \n const seedDatabaseJob = defineJob({\n     meta: {\n         name: \"seedDatabase\",\n"
+                }
+            ],
+            "date": 1732142029917,
+            "name": "Commit-0",
+            "content": "import { z } from \"zod\";\n\nconst seedDatabaseJob = defineJob({\n    meta: {\n        name: \"seedDatabase\",\n        description: \"Seed the database with initial data\",\n        schema: z.object({\n            environment: z.string().default(process.env.NODE_ENV || \"development\"),\n        }),\n    },\n    middlewares: [loggingMiddleware],\n    async run(event) {\n        console.log(`Seeding database for environment: ${event.payload.environment}`);\n        return \"Database seeded successfully\";\n    },\n});\n"
+        }
+    ]
+}

@@ -1,0 +1,54 @@
+{
+    "sourceFile": "server/utils/logging-middleware.ts",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 9,
+            "patches": [
+                {
+                    "date": 1732144096007,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                },
+                {
+                    "date": 1732145588841,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,14 +1,17 @@\n export const loggingMiddleware: JobMiddleware = {\n-  beforeRun: (event: JobEvent) => {\n-    console.log(`[Log] Starting job: ${event.meta.name}`);\n-    print(event);\n+  // beforeRun: (event: JobEvent) => {\n+  //   console.log(`[Log] Starting job: ${event.meta.name}`);\n+  //   print(event);\n+  // },\n+  // afterRun: (event: JobEvent) => {\n+  //   console.log(`[Log] Job completed: ${event.meta.name}, Result: ${result}`);\n+  // },\n+  // onError: (event: JobEvent, error: Error) => {\n+  //   console.error(\n+  //     `[Log] Job failed: ${event.meta.name}, Error: ${error.message}`\n+  //   );\n+  // },\n+  onComplete: (event: JobEvent) => {\n+    console.log(`[Log] Job cleanup: ${event.meta.name}`);\n   },\n-  afterRun: (event: JobEvent, result: unknown) => {\n-    console.log(`[Log] Job completed: ${event.meta.name}, Result: ${result}`);\n-  },\n-  onError: (event: JobEvent, error: Error) => {\n-    console.error(\n-      `[Log] Job failed: ${event.meta.name}, Error: ${error.message}`\n-    );\n-  },\n };\n"
+                },
+                {
+                    "date": 1732145603394,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -2,11 +2,11 @@\n   // beforeRun: (event: JobEvent) => {\n   //   console.log(`[Log] Starting job: ${event.meta.name}`);\n   //   print(event);\n   // },\n-  // afterRun: (event: JobEvent) => {\n-  //   console.log(`[Log] Job completed: ${event.meta.name}, Result: ${result}`);\n-  // },\n+  afterRun: (event: JobEvent) => {\n+    console.log(`[Log] Job completed: ${event.meta.name}, Result: ${result}`);\n+  },\n   // onError: (event: JobEvent, error: Error) => {\n   //   console.error(\n   //     `[Log] Job failed: ${event.meta.name}, Error: ${error.message}`\n   //   );\n"
+                },
+                {
+                    "date": 1732145619180,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -3,9 +3,11 @@\n   //   console.log(`[Log] Starting job: ${event.meta.name}`);\n   //   print(event);\n   // },\n   afterRun: (event: JobEvent) => {\n-    console.log(`[Log] Job completed: ${event.meta.name}, Result: ${result}`);\n+    console.log(\n+      `[Log] Job completed: ${event.meta.name}, Context: ${event.context}`\n+    );\n   },\n   // onError: (event: JobEvent, error: Error) => {\n   //   console.error(\n   //     `[Log] Job failed: ${event.meta.name}, Error: ${error.message}`\n"
+                },
+                {
+                    "date": 1732145641692,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -3,11 +3,10 @@\n   //   console.log(`[Log] Starting job: ${event.meta.name}`);\n   //   print(event);\n   // },\n   afterRun: (event: JobEvent) => {\n-    console.log(\n-      `[Log] Job completed: ${event.meta.name}, Context: ${event.context}`\n-    );\n+    console.log(`[Log] Job completed: ${event.meta.name}`);\n+    print(event.context);\n   },\n   // onError: (event: JobEvent, error: Error) => {\n   //   console.error(\n   //     `[Log] Job failed: ${event.meta.name}, Error: ${error.message}`\n"
+                },
+                {
+                    "date": 1732145743368,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -13,6 +13,7 @@\n   //   );\n   // },\n   onComplete: (event: JobEvent) => {\n     console.log(`[Log] Job cleanup: ${event.meta.name}`);\n+    print(event.context);\n   },\n };\n"
+                },
+                {
+                    "date": 1732145978869,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,18 +1,19 @@\n export const loggingMiddleware: JobMiddleware = {\n-  // beforeRun: (event: JobEvent) => {\n-  //   console.log(`[Log] Starting job: ${event.meta.name}`);\n-  //   print(event);\n-  // },\n+  beforeRun: (event: JobEvent) => {\n+    console.log(`[Log] Starting job: ${event.meta.name}`);\n+    print(event);\n+    throw new Error(\"Error in beforeRun\");\n+  },\n   afterRun: (event: JobEvent) => {\n     console.log(`[Log] Job completed: ${event.meta.name}`);\n     print(event.context);\n   },\n-  // onError: (event: JobEvent, error: Error) => {\n-  //   console.error(\n-  //     `[Log] Job failed: ${event.meta.name}, Error: ${error.message}`\n-  //   );\n-  // },\n+  onError: (event: JobEvent, error: Error) => {\n+    console.error(\n+      `[Log] Job failed: ${event.meta.name}, Error: ${error.message}`\n+    );\n+  },\n   onComplete: (event: JobEvent) => {\n     console.log(`[Log] Job cleanup: ${event.meta.name}`);\n     print(event.context);\n   },\n"
+                },
+                {
+                    "date": 1732146358781,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,8 +1,8 @@\n export const loggingMiddleware: JobMiddleware = {\n   beforeRun: (event: JobEvent) => {\n     console.log(`[Log] Starting job: ${event.meta.name}`);\n-    print(event);\n+    // print(event);\n     throw new Error(\"Error in beforeRun\");\n   },\n   afterRun: (event: JobEvent) => {\n     console.log(`[Log] Job completed: ${event.meta.name}`);\n"
+                },
+                {
+                    "date": 1732146451980,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,9 +1,11 @@\n export const loggingMiddleware: JobMiddleware = {\n   beforeRun: (event: JobEvent) => {\n     console.log(`[Log] Starting job: ${event.meta.name}`);\n     // print(event);\n-    throw new Error(\"Error in beforeRun\");\n+    if (Math.random() * 0.5) {\n+      throw new Error(\"Error in beforeRun\");\n+    }\n   },\n   afterRun: (event: JobEvent) => {\n     console.log(`[Log] Job completed: ${event.meta.name}`);\n     print(event.context);\n"
+                },
+                {
+                    "date": 1732146458595,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,9 +1,9 @@\n export const loggingMiddleware: JobMiddleware = {\n   beforeRun: (event: JobEvent) => {\n     console.log(`[Log] Starting job: ${event.meta.name}`);\n     // print(event);\n-    if (Math.random() * 0.5) {\n+    if (Math.random() * 0.5 > 0.25) {\n       throw new Error(\"Error in beforeRun\");\n     }\n   },\n   afterRun: (event: JobEvent) => {\n"
+                }
+            ],
+            "date": 1732144096007,
+            "name": "Commit-0",
+            "content": "export const loggingMiddleware: JobMiddleware = {\n  beforeRun: (event: JobEvent) => {\n    console.log(`[Log] Starting job: ${event.meta.name}`);\n    print(event);\n  },\n  afterRun: (event: JobEvent, result: unknown) => {\n    console.log(`[Log] Job completed: ${event.meta.name}, Result: ${result}`);\n  },\n  onError: (event: JobEvent, error: Error) => {\n    console.error(\n      `[Log] Job failed: ${event.meta.name}, Error: ${error.message}`\n    );\n  },\n};\n"
+        }
+    ]
+}

@@ -1,0 +1,18 @@
+{
+    "sourceFile": "server/api/openai-call",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 0,
+            "patches": [
+                {
+                    "date": 1732216126690,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                }
+            ],
+            "date": 1732216126690,
+            "name": "Commit-0",
+            "content": "export default eventHandler(async (event) => {\n  const { prompt } = await readBody(event); // Retrieve the prompt from the request body\n\n  // Run the OpenAI task\n  const { result } = await runTask(\"openai:call\", { payload: { prompt } });\n\n  return { result };\n});\n"
+        }
+    ]
+}

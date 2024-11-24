@@ -1,0 +1,22 @@
+{
+    "sourceFile": "server/utils/workflow-logging-middleware.ts",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 1,
+            "patches": [
+                {
+                    "date": 1732214559831,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                },
+                {
+                    "date": 1732214625535,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,11 +1,11 @@\n export const workflowLoggingMiddleware: WorkflowMiddleware = {\n   beforeRun: (event: WorkflowEvent) => {\n     console.log(`[Log] Starting workflow: ${event.meta.name}`);\n     // print(event);\n-    if (Math.random() * 0.5 > 0.25) {\n-      throw new Error(\"Error in beforeRun\");\n-    }\n+    // if (Math.random() * 0.5 > 0.25) {\n+    //   throw new Error(\"Error in beforeRun\");\n+    // }\n   },\n   afterRun: (event: WorkflowEvent) => {\n     console.log(`[Log] Workflow completed: ${event.meta.name}`);\n     print(event.context);\n"
+                }
+            ],
+            "date": 1732214559831,
+            "name": "Commit-0",
+            "content": "export const workflowLoggingMiddleware: WorkflowMiddleware = {\n  beforeRun: (event: WorkflowEvent) => {\n    console.log(`[Log] Starting workflow: ${event.meta.name}`);\n    // print(event);\n    if (Math.random() * 0.5 > 0.25) {\n      throw new Error(\"Error in beforeRun\");\n    }\n  },\n  afterRun: (event: WorkflowEvent) => {\n    console.log(`[Log] Workflow completed: ${event.meta.name}`);\n    print(event.context);\n  },\n  onError: (event: WorkflowEvent, error: Error) => {\n    console.error(\n      `[Log] Workflow failed: ${event.meta.name}, Error: ${error.message}`\n    );\n  },\n  onComplete: (event: WorkflowEvent) => {\n    console.log(`[Log] Workflow cleanup: ${event.meta.name}`);\n    print(event.context);\n  },\n};\n"
+        }
+    ]
+}

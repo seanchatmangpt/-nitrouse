@@ -1,0 +1,46 @@
+{
+    "sourceFile": "server/tasks/db/flow.js",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 7,
+            "patches": [
+                {
+                    "date": 1732214206298,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                },
+                {
+                    "date": 1732214229667,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -15,5 +15,5 @@\n     middlewares: [loggingMiddleware, resultModifierMiddleware],\n });\n \n \n-runTask(\"db:migrate\", { payload: { environment: \"production\" } });\n+runTask(\"db:flow\", { payload: { environment: \"production\" } });\n"
+                },
+                {
+                    "date": 1732214306058,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -2,9 +2,9 @@\n import { resultModifierMiddleware } from \"~/server/utils/result-mod-middleware\";\n \n export default defineJob({\n     meta: {\n-        name: \"seedDatabase\",\n+        name: \"helloWorld\",\n         description: \"Seed the database with initial data\",\n         schema: z.object({\n             environment: z.string().default(process.env.NODE_ENV || \"development\"), // Default to NODE_ENV or \"development\"\n         }),\n"
+                },
+                {
+                    "date": 1732214509852,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -3,17 +3,17 @@\n \n export default defineJob({\n     meta: {\n         name: \"helloWorld\",\n-        description: \"Seed the database with initial data\",\n+        description: \"Hello World with initial data\",\n         schema: z.object({\n             environment: z.string().default(process.env.NODE_ENV || \"development\"), // Default to NODE_ENV or \"development\"\n         }),\n     },\n     async run(event) {\n-        return \"Database seeded successfully\";\n+        return \"World seeded successfully\";\n     },\n-    middlewares: [loggingMiddleware, resultModifierMiddleware],\n+    middlewares: [workflowLoggingMiddleware, resultModifierMiddleware],\n });\n \n \n runTask(\"db:flow\", { payload: { environment: \"production\" } });\n"
+                },
+                {
+                    "date": 1732214664116,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -11,9 +11,9 @@\n     },\n     async run(event) {\n         return \"World seeded successfully\";\n     },\n-    middlewares: [workflowLoggingMiddleware, resultModifierMiddleware],\n+    middlewares: [workflowLoggingMiddleware],\n });\n \n \n runTask(\"db:flow\", { payload: { environment: \"production\" } });\n"
+                },
+                {
+                    "date": 1732214864773,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -12,8 +12,8 @@\n     async run(event) {\n         return \"World seeded successfully\";\n     },\n     middlewares: [workflowLoggingMiddleware],\n-});\n+}); \n \n \n runTask(\"db:flow\", { payload: { environment: \"production\" } });\n"
+                },
+                {
+                    "date": 1732214880731,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,8 +1,8 @@\n import { z } from \"zod\";\n import { resultModifierMiddleware } from \"~/server/utils/result-mod-middleware\";\n \n-export default defineJob({\n+export default defineWorkflow({\n   meta: {\n     name: \"helloWorld\",\n     description: \"Hello World with initial data\",\n     schema: z.object({\n"
+                },
+                {
+                    "date": 1732215067146,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -7,8 +7,9 @@\n     description: \"Hello World with initial data\",\n     schema: z.object({\n       environment: z.string().default(process.env.NODE_ENV || \"development\"), // Default to NODE_ENV or \"development\"\n     }),\n+    jobs: [\"db:seed\"]\n   },\n   async run(event) {\n     return \"World seeded successfully\";\n   },\n"
+                }
+            ],
+            "date": 1732214206298,
+            "name": "Commit-0",
+            "content": "import { z } from \"zod\";\nimport { resultModifierMiddleware } from \"~/server/utils/result-mod-middleware\";\n\nexport default defineJob({\n    meta: {\n        name: \"seedDatabase\",\n        description: \"Seed the database with initial data\",\n        schema: z.object({\n            environment: z.string().default(process.env.NODE_ENV || \"development\"), // Default to NODE_ENV or \"development\"\n        }),\n    },\n    async run(event) {\n        return \"Database seeded successfully\";\n    },\n    middlewares: [loggingMiddleware, resultModifierMiddleware],\n});\n\n\nrunTask(\"db:migrate\", { payload: { environment: \"production\" } });\n"
+        }
+    ]
+}
