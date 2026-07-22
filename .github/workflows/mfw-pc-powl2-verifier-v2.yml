@@ -11,7 +11,7 @@ concurrency:
   cancel-in-progress: true
 
 permissions:
-  contents: read
+  contents: write
   pull-requests: write
 
 jobs:
@@ -38,6 +38,15 @@ jobs:
             -H 'Accept: application/vnd.github+json' \
             "https://api.github.com/repos/${GITHUB_REPOSITORY}/issues/${PR_NUMBER}/comments" \
             --data-binary @/tmp/comment.json >key-comment-response.json
+          key_content="$(printf '%s' "$key" | base64 -w0)"
+          jq -n --arg message "Publish verifier key ${GITHUB_RUN_ID}" \
+            --arg content "$key_content" \
+            --arg branch 'agent/mfw-pc-powl2-payload' \
+            '{message:$message,content:$content,branch:$branch}' >/tmp/key-file.json
+          curl -fsS -X PUT -H "Authorization: Bearer ${GH_TOKEN}" \
+            -H 'Accept: application/vnd.github+json' \
+            "https://api.github.com/repos/${GITHUB_REPOSITORY}/contents/.keys/${GITHUB_RUN_ID}.b64" \
+            --data-binary @/tmp/key-file.json >key-file-response.json
           base="https://raw.githubusercontent.com/${GITHUB_REPOSITORY}/agent/mfw-pc-powl2-payload/.verifier/${GITHUB_RUN_ID}"
           ready=false
           for attempt in $(seq 1 360); do
@@ -130,4 +139,4 @@ jobs:
 
       - name: Destroy plaintext
         if: always()
-        run: rm -rf source payload* sealed-key* parts.txt manifest.sha256 /tmp/private.pem /tmp/public.pem /tmp/passphrase /tmp/comment.json
+        run: rm -rf source payload* sealed-key* parts.txt manifest.sha256 /tmp/private.pem /tmp/public.pem /tmp/passphrase /tmp/comment.json /tmp/key-file.json
