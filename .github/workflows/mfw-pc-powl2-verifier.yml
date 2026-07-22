@@ -25,16 +25,40 @@ jobs:
           printf 'repository=%s\nref=%s\nsha=%s\n' \
             "$GITHUB_REPOSITORY" "$GITHUB_REF" "$GITHUB_SHA"
 
-      - name: Run repository-scoped private verifier
-        uses: seanchatmangpt/mfw/.github/actions/pc-powl2-verify@agent/finish-pc-powl2-kernel
-        with:
-          mode: source
+      - name: Probe same-owner private repository access
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          git -c http.extraheader="AUTHORIZATION: basic $(printf 'x-access-token:%s' "$GH_TOKEN" | base64 -w0)" \
+            ls-remote \
+            https://github.com/seanchatmangpt/mfw.git \
+            refs/heads/agent/finish-pc-powl2-kernel \
+            | tee mfw-ls-remote.log
+          test -s mfw-ls-remote.log
+
+      - name: Checkout exact private branch
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          git -c http.extraheader="AUTHORIZATION: basic $(printf 'x-access-token:%s' "$GH_TOKEN" | base64 -w0)" \
+            clone --depth 1 --branch agent/finish-pc-powl2-kernel \
+            https://github.com/seanchatmangpt/mfw.git mfw-private
+
+      - name: Verify source policy
+        run: |
+          set -o pipefail
+          python3 mfw-private/pc-powl2/scripts/verify_source.py \
+            2>&1 | tee pc-powl2-source-policy.log
 
       - name: Upload source-policy receipt
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: mfw-pc-powl2-source-policy
-          path: pc-powl2-source-policy.log
+          path: |
+            mfw-ls-remote.log
+            pc-powl2-source-policy.log
           if-no-files-found: warn
           retention-days: 14
