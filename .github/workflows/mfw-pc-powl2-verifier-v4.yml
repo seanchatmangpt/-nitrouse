@@ -1,0 +1,167 @@
+name: MFW PC-POWL2 iterative verifier
+
+on:
+  pull_request:
+    branches: [main]
+    paths: [.github/workflows/mfw-pc-powl2-verifier-v4.yml]
+  workflow_dispatch:
+
+concurrency:
+  group: mfw-pc-powl2-iterative-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - name: Generate ephemeral key and receive stable payload
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          date -u | tee runner.log
+          uname -a | tee -a runner.log
+          umask 077
+          openssl genpkey -algorithm RSA -pkeyopt rsa_keygen_bits:3072 \
+            -out /tmp/private.pem 2>key-generation.log
+          openssl pkey -in /tmp/private.pem -pubout -out /tmp/public.pem
+          key="$(base64 -w0 /tmp/public.pem)"
+          key_content="$(printf '%s' "$key" | base64 -w0)"
+          jq -n --arg message "Publish iterative verifier key ${GITHUB_RUN_ID}" \
+            --arg content "$key_content" \
+            --arg branch 'agent/mfw-pc-powl2-payload' \
+            '{message:$message,content:$content,branch:$branch}' >/tmp/key.json
+          curl -fsS -X PUT -H "Authorization: Bearer ${GH_TOKEN}" \
+            -H 'Accept: application/vnd.github+json' \
+            "https://api.github.com/repos/${GITHUB_REPOSITORY}/contents/.keys/${GITHUB_RUN_ID}.b64" \
+            --data-binary @/tmp/key.json >key-response.json
+
+          payload="https://raw.githubusercontent.com/${GITHUB_REPOSITORY}/agent/mfw-pc-powl2-payload/.verifier/29966537696"
+          binding="https://raw.githubusercontent.com/${GITHUB_REPOSITORY}/agent/mfw-pc-powl2-payload/.bindings/${GITHUB_RUN_ID}"
+          ready=false
+          for attempt in $(seq 1 360); do
+            nonce="$(date +%s%N)"
+            if curl -fsSL "${binding}/sealed-key.b64?${nonce}" -o sealed-key.b64 \
+              && curl -fsSL "${binding}/manifest.sha256?${nonce}" -o manifest.sha256 \
+              && curl -fsSL "${payload}/parts.txt?${nonce}" -o parts.txt; then
+              : >payload.tar.enc.b64
+              good=true
+              while IFS= read -r part; do
+                curl -fsSL "${payload}/${part}?${nonce}" >>payload.tar.enc.b64 || good=false
+              done <parts.txt
+              if [[ "$good" == true ]]; then ready=true; break; fi
+            fi
+            echo "waiting attempt=${attempt}"
+            sleep 5
+          done
+          test "$ready" = true
+          base64 -d sealed-key.b64 >sealed-key.bin
+          base64 -d payload.tar.enc.b64 >payload.tar.enc
+          sha256sum -c manifest.sha256 | tee transport-integrity.log
+          openssl pkeyutl -decrypt -inkey /tmp/private.pem -in sealed-key.bin \
+            -out /tmp/passphrase -pkeyopt rsa_padding_mode:oaep \
+            -pkeyopt rsa_oaep_md:sha256
+          mkdir source
+          openssl enc -d -aes-256-cbc -pbkdf2 -iter 250000 \
+            -pass file:/tmp/passphrase -in payload.tar.enc | tar -xz -C source
+          test -f source/pc-powl2/PCPOWL2.lean
+
+      - name: Apply admitted branch repairs
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          core = Path('source/pc-powl2/PCPOWL2/Core.lean')
+          text = core.read_text()
+          text = text.replace('import Mathlib.Data.List.Perm\n', '')
+          core.write_text(text)
+
+          standing = Path('source/pc-powl2/PCPOWL2/Standing.lean')
+          text = standing.read_text()
+          old = '''instance : PartialOrder Standing where
+            le_refl a := Nat.le_refl (rank a)
+            le_trans _ _ _ := Nat.le_trans
+            le_antisymm a b hab hba := rank_injective (Nat.le_antisymm hab hba)
+          '''
+          new = '''instance : PartialOrder Standing where
+            le_refl a := Nat.le_refl (rank a)
+            le_trans _ _ _ := Nat.le_trans
+            le_antisymm a b hab hba := rank_injective (Nat.le_antisymm hab hba)
+            lt_iff_le_not_ge := by
+              intro a b
+              change rank a < rank b ↔ rank a ≤ rank b ∧ ¬ rank b ≤ rank a
+              omega
+          '''
+          if old not in text:
+              raise SystemExit('standing repair anchor missing')
+          standing.write_text(text.replace(old, new))
+          PY
+
+      - name: Source policy
+        run: |
+          python3 - <<'PY' 2>&1 | tee source-policy.log
+          from pathlib import Path
+          import re, sys
+          root=Path('source/pc-powl2'); fs=sorted((root/'PCPOWL2').glob('*.lean')); e=[]
+          for p in fs:
+            t=p.read_text()
+            for n,r in {'sorry':r'\bsorry\b','admit':r'\badmit\b','axiom':r'(?m)^\s*axiom\b','opaque':r'(?m)^\s*opaque\b','unsafe':r'(?m)^\s*unsafe\b'}.items():
+              if re.search(r,t): e.append(f'{p.name}:{n}')
+          im=set(re.findall(r'(?m)^import\s+([A-Za-z0-9_.]+)',(root/'PCPOWL2.lean').read_text()))
+          for p in fs:
+            m='.'.join(p.relative_to(root).with_suffix('').parts)
+            if not m.endswith('.Examples') and m not in im: e.append('missing '+m)
+          print('SOURCE POLICY:', 'FAILURE' if e else 'ALIVE'); print('modules=',len(fs)); print('\n'.join(e))
+          sys.exit(bool(e))
+          PY
+
+      - name: Install Lean
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends curl git zstd
+          curl https://elan.lean-lang.org/elan-init.sh -sSf | sh -s -- -y --default-toolchain none
+          echo "$HOME/.elan/bin" >>"$GITHUB_PATH"
+
+      - name: Kernel build and theorem audits
+        working-directory: source/pc-powl2
+        run: |
+          set -o pipefail
+          { elan --version; cat lean-toolchain; lean --version; lake --version; } 2>&1 | tee ../../toolchain.log
+          lake update 2>&1 | tee ../../lake-update.log
+          lake exe cache get 2>&1 | tee ../../mathlib-cache.log
+          lake build --wfail 2>&1 | tee ../../build.log
+          lake env leanchecker PCPOWL2 2>&1 | tee ../../leanchecker.log
+          lake env leanchecker Main 2>&1 | tee -a ../../leanchecker.log
+          lake exe pc_powl2_check 2>&1 | tee ../../audit.log
+
+      - name: Independent nanoda verification
+        working-directory: source/pc-powl2
+        run: |
+          set -euo pipefail
+          git clone --depth 1 https://github.com/leanprover/lean4export.git _lean4export
+          cp lean-toolchain _lean4export/lean-toolchain
+          (cd _lean4export && lake build)
+          git clone --depth 1 --branch debug https://github.com/ammkrn/nanoda_lib.git _nanoda_lib
+          (cd _nanoda_lib && cargo build --release)
+          lake env _lean4export/.lake/build/bin/lean4export PCPOWL2 >_nanoda_export.txt
+          cat >_nanoda_config.json <<'JSON'
+          {"export_file_path":"_nanoda_export.txt","use_stdin":false,"permitted_axioms":["propext","Classical.choice","Quot.sound","Lean.trustCompiler"],"unpermitted_axiom_hard_error":true,"nat_extension":true,"string_extension":true,"print_success_message":true}
+          JSON
+          _nanoda_lib/target/release/nanoda_bin _nanoda_config.json 2>&1 | tee ../../nanoda.log
+
+      - name: Upload receipts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pc-powl2-iterative-${{ github.run_id }}
+          path: '*.log'
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Destroy plaintext
+        if: always()
+        run: rm -rf source payload* sealed-key* parts.txt manifest.sha256 /tmp/private.pem /tmp/public.pem /tmp/passphrase /tmp/key.json
